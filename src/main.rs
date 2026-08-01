@@ -12,5 +12,5 @@ async fn main() {
         .assets(AssetBundle::load().unwrap())
         .build();
 
-    topcoat::start(router).await.unwrap();
+    topcoat::vercel::start(router).await.unwrap();
 }
