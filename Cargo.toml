@@ -1,0 +1,28 @@
+[package]
+name = "kitchen-sink-demo"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+http-body-util = "0.1"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }
+tokio-stream = "0.1"
+topcoat = { git = "https://github.com/petehunt/topcoat.git", rev = "eb9c1ee1298f5674dfd5ee2534216499183eaa61", features = ["htmx", "shell-view", "tailwind"] }
+vercel_runtime = "2"
+
+[build-dependencies]
+topcoat = { git = "https://github.com/petehunt/topcoat.git", rev = "eb9c1ee1298f5674dfd5ee2534216499183eaa61", default-features = false, features = ["tailwind"] }
+
+[[bin]]
+name = "kitchen-sink-demo"
+path = "src/main.rs"
+
+[[bin]]
+name = "index"
+path = "api/index.rs"
+
+[profile.release]
+codegen-units = 1
+lto = "fat"
+opt-level = 3
