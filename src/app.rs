@@ -6,9 +6,8 @@ use topcoat::{
     context::Cx,
     htmx::hx_boosted,
     router::{HeaderValue, header, query_params, request::headers, route},
-    shell_view::{ShellView, shell_view},
     tailwind,
-    view::{View, component, view},
+    view::{View, component, defer_script, view},
 };
 
 #[query_params(error = redirect("?mode=streaming"))]
@@ -47,7 +46,7 @@ impl RenderMode {
         match self {
             Self::Sequential => "Sequential",
             Self::Concurrent => "Concurrent SSR",
-            Self::Streaming => "ShellView",
+            Self::Streaming => "Deferred View",
         }
     }
 
@@ -81,7 +80,7 @@ struct Product {
 }
 
 #[route(GET "/")]
-async fn catalog(cx: &Cx) -> Result<ShellView> {
+async fn catalog(cx: &Cx) -> Result {
     let query = query_params::<CatalogQuery>(cx)?;
     let mode = RenderMode::from_query(query.mode.as_deref());
     let category = find_category(query.category.as_deref());
@@ -109,7 +108,7 @@ async fn sequential_catalog(
     category: Category,
     search: Option<String>,
     request_kind: &'static str,
-) -> Result<ShellView> {
+) -> Result {
     let started = Instant::now();
     let inventory_view = view! { cx => inventory_summary(category: category) }?;
     let products_view = view! {
@@ -143,7 +142,7 @@ async fn sequential_catalog(
         content,
     )
     .await?;
-    Ok(ShellView::from_view(document))
+    Ok(document)
 }
 
 async fn concurrent_catalog(
@@ -152,7 +151,7 @@ async fn concurrent_catalog(
     category: Category,
     search: Option<String>,
     request_kind: &'static str,
-) -> Result<ShellView> {
+) -> Result {
     let started = Instant::now();
     let content = view! {
         cx =>
@@ -181,7 +180,7 @@ async fn concurrent_catalog(
         content,
     )
     .await?;
-    Ok(ShellView::from_view(document))
+    Ok(document)
 }
 
 async fn streaming_catalog(
@@ -190,20 +189,19 @@ async fn streaming_catalog(
     category: Category,
     search: Option<String>,
     request_kind: &'static str,
-) -> Result<ShellView> {
-    let mut page = ShellView::builder(cx);
+) -> Result {
     let products_placeholder = product_table_placeholder(cx).await?;
-    let inventory_slot = page.defer(inventory_placeholder().await?, move |cx| async move {
+    let inventory_slot = inventory_placeholder().await?.defer(move |cx| async move {
         let cx = cx.as_ref();
         view! { cx => inventory_summary(category: category) }
     });
-    let sourcing_slot = page.defer(sourcing_placeholder().await?, |cx| async move {
+    let sourcing_slot = sourcing_placeholder().await?.defer(|cx| async move {
         let cx = cx.as_ref();
         view! { cx => sourcing_notes() }
     });
 
     let product_search = search.clone();
-    let content = shell_view! {
+    let content = view! {
         cx =>
         <div class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_18rem]">
             <div class="space-y-5">
@@ -215,9 +213,8 @@ async fn streaming_catalog(
             (sourcing_slot)
         </div>
     }?;
-    let content = page.include(content);
     let content = catalog_chrome(cx, mode, category, search.as_deref(), content).await?;
-    let document = document(
+    document(
         cx,
         mode,
         category,
@@ -226,8 +223,7 @@ async fn streaming_catalog(
         None,
         content,
     )
-    .await?;
-    Ok(page.finish(document))
+    .await
 }
 
 async fn product_page(
@@ -236,7 +232,7 @@ async fn product_page(
     category: Category,
     product: Product,
     request_kind: &'static str,
-) -> Result<ShellView> {
+) -> Result {
     let started = Instant::now();
     let content = view! {
         cx =>
@@ -253,7 +249,7 @@ async fn product_page(
         content,
     )
     .await?;
-    Ok(ShellView::from_view(document))
+    Ok(document)
 }
 
 async fn document(
@@ -285,6 +281,7 @@ async fn document(
                 <link rel="stylesheet" href=(tailwind::stylesheet!())>
                 <script src=(asset!("assets/htmx.min.js"))></script>
                 <script src=(asset!("assets/dashboard.js"))></script>
+                defer_script()
                 topcoat::dev::script()
             </head>
             <body
@@ -386,7 +383,7 @@ async fn document(
                                                 aria-current="page"
                                             }
                                         >
-                                            <span class="font-semibold">"ShellView"</span>
+                                            <span class="font-semibold">"Deferred View"</span>
                                             <span class="mt-0.5 block text-xs opacity-60">
                                                 "Stream into nested slots"
                                             </span>
@@ -500,7 +497,7 @@ async fn document(
                             "Demo catalog. Same data sources, three scheduling strategies."
                         </p>
                         <p>
-                            "Topcoat + ShellView + htmx boost + hover preload + Tailwind CSS"
+                            "Topcoat + deferred views + htmx boost + hover preload + Tailwind CSS"
                         </p>
                     </footer>
                 </main>
@@ -642,6 +639,14 @@ async fn product_table(
     mode: RenderMode,
 ) -> Result {
     let products = matching_products(category, search.as_deref());
+    let mut sequential_rows = Vec::new();
+    if !concurrent {
+        for product in &products {
+            sequential_rows.push(view! {
+                product_row(product: *product, mode: mode, category: category)
+            }?);
+        }
+    }
 
     view! {
         <section
@@ -682,7 +687,7 @@ async fn product_table(
                     </thead>
                     <tbody class="divide-y divide-slate-200">
                         if concurrent {
-                            for concurrent product in products {
+                            for product in products {
                                 product_row(
                                     product: product,
                                     mode: mode,
@@ -690,12 +695,8 @@ async fn product_table(
                                 )
                             }
                         } else {
-                            for product in products {
-                                product_row(
-                                    product: product,
-                                    mode: mode,
-                                    category: category
-                                )
+                            for row in sequential_rows {
+                                (row)
                             }
                         }
                     </tbody>
