@@ -1,14 +1,18 @@
 use std::time::{Duration, Instant};
 
+use serde::Serialize;
 use topcoat::{
     Result,
-    asset::asset,
+    asset::{Asset, CxAssetExt, asset},
     context::Cx,
     htmx::hx_boosted,
     router::{HeaderValue, header, query_params, request::headers, route},
     tailwind,
     view::{View, component, defer_script, view},
 };
+
+const TYPEAHEAD_CSS: Asset = asset!("assets/typeahead.css");
+const TYPEAHEAD_JS: Asset = asset!("assets/typeahead.js");
 
 #[query_params(error = redirect("?mode=streaming"))]
 struct CatalogQuery {
@@ -77,6 +81,14 @@ struct Product {
     unit: &'static str,
     stock: usize,
     delay_ms: u64,
+}
+
+#[derive(Serialize)]
+struct ProductSuggestion {
+    name: &'static str,
+    sku: &'static str,
+    specification: &'static str,
+    href: String,
 }
 
 #[route(GET "/")]
@@ -261,6 +273,15 @@ async fn document(
     server_ms: Option<u128>,
     content: View,
 ) -> Result {
+    cx.require_asset(TYPEAHEAD_CSS.stylesheet())?;
+    cx.require_asset(TYPEAHEAD_JS.module())?;
+    let suggestions = products().map(|product| ProductSuggestion {
+        name: product.name,
+        sku: product.sku,
+        specification: product.specification,
+        href: product_href(mode, find_category(Some(product.category)), product),
+    });
+    let suggestions_key = cx.send_json(&suggestions)?;
     let sequential_item = mode_item_class(mode == RenderMode::Sequential);
     let concurrent_item = mode_item_class(mode == RenderMode::Concurrent);
     let streaming_item = mode_item_class(mode == RenderMode::Streaming);
@@ -420,6 +441,11 @@ async fn document(
                                 id="catalog-search"
                                 name="q"
                                 value=(search.unwrap_or(""))
+                                autocomplete="off"
+                                role="combobox"
+                                aria-autocomplete="list"
+                                aria-expanded="false"
+                                data-topcoat-typeahead=(suggestions_key.as_str())
                                 placeholder="Search by product, material, or specification"
                                 class="min-w-0 flex-1 px-4 py-2.5 text-sm outline-none placeholder:text-slate-400"
                             >

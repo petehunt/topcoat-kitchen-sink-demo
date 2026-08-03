@@ -864,6 +864,7 @@ dependencies = [
 name = "kitchen-sink-demo"
 version = "0.1.0"
 dependencies = [
+ "serde",
  "tokio",
  "topcoat",
 ]
@@ -1658,7 +1659,7 @@ checksum = "7d56353a2a665ad0f41a421187180aab746c8c325620617ad883a99a1cbe66d2"
 [[package]]
 name = "topcoat"
 version = "0.5.0"
-source = "git+https://github.com/petehunt/topcoat.git?rev=0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8#0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8"
+source = "git+https://github.com/petehunt/topcoat.git?rev=7aeb240ba3e269df738129597cc03cc804c74583#7aeb240ba3e269df738129597cc03cc804c74583"
 dependencies = [
  "futures-util",
  "inventory",
@@ -1690,7 +1691,7 @@ dependencies = [
 [[package]]
 name = "topcoat-asset"
 version = "0.5.0"
-source = "git+https://github.com/petehunt/topcoat.git?rev=0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8#0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8"
+source = "git+https://github.com/petehunt/topcoat.git?rev=7aeb240ba3e269df738129597cc03cc804c74583#7aeb240ba3e269df738129597cc03cc804c74583"
 dependencies = [
  "http",
  "memchr",
@@ -1707,7 +1708,7 @@ dependencies = [
 [[package]]
 name = "topcoat-cookie"
 version = "0.5.0"
-source = "git+https://github.com/petehunt/topcoat.git?rev=0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8#0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8"
+source = "git+https://github.com/petehunt/topcoat.git?rev=7aeb240ba3e269df738129597cc03cc804c74583#7aeb240ba3e269df738129597cc03cc804c74583"
 dependencies = [
  "cookie",
  "getrandom 0.2.17",
@@ -1721,14 +1722,17 @@ dependencies = [
 [[package]]
 name = "topcoat-core"
 version = "0.5.0"
-source = "git+https://github.com/petehunt/topcoat.git?rev=0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8#0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8"
+source = "git+https://github.com/petehunt/topcoat.git?rev=7aeb240ba3e269df738129597cc03cc804c74583#7aeb240ba3e269df738129597cc03cc804c74583"
 dependencies = [
  "anyhow",
  "anymap3",
  "boxcar",
+ "getrandom 0.4.3",
  "hashbrown",
  "http",
  "pin-project-lite",
+ "serde",
+ "serde_json",
  "thiserror",
  "tokio",
 ]
@@ -1736,7 +1740,7 @@ dependencies = [
 [[package]]
 name = "topcoat-core-grammar"
 version = "0.5.0"
-source = "git+https://github.com/petehunt/topcoat.git?rev=0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8#0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8"
+source = "git+https://github.com/petehunt/topcoat.git?rev=7aeb240ba3e269df738129597cc03cc804c74583#7aeb240ba3e269df738129597cc03cc804c74583"
 dependencies = [
  "proc-macro-crate",
  "proc-macro2",
@@ -1747,7 +1751,7 @@ dependencies = [
 [[package]]
 name = "topcoat-core-macro"
 version = "0.5.0"
-source = "git+https://github.com/petehunt/topcoat.git?rev=0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8#0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8"
+source = "git+https://github.com/petehunt/topcoat.git?rev=7aeb240ba3e269df738129597cc03cc804c74583#7aeb240ba3e269df738129597cc03cc804c74583"
 dependencies = [
  "quote",
  "syn 2.0.119",
@@ -1757,7 +1761,7 @@ dependencies = [
 [[package]]
 name = "topcoat-font"
 version = "0.5.0"
-source = "git+https://github.com/petehunt/topcoat.git?rev=0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8#0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8"
+source = "git+https://github.com/petehunt/topcoat.git?rev=7aeb240ba3e269df738129597cc03cc804c74583#7aeb240ba3e269df738129597cc03cc804c74583"
 dependencies = [
  "heck",
  "inventory",
@@ -1773,7 +1777,7 @@ dependencies = [
 [[package]]
 name = "topcoat-font-grammar"
 version = "0.5.0"
-source = "git+https://github.com/petehunt/topcoat.git?rev=0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8#0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8"
+source = "git+https://github.com/petehunt/topcoat.git?rev=7aeb240ba3e269df738129597cc03cc804c74583#7aeb240ba3e269df738129597cc03cc804c74583"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1785,7 +1789,7 @@ dependencies = [
 [[package]]
 name = "topcoat-font-macro"
 version = "0.5.0"
-source = "git+https://github.com/petehunt/topcoat.git?rev=0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8#0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8"
+source = "git+https://github.com/petehunt/topcoat.git?rev=7aeb240ba3e269df738129597cc03cc804c74583#7aeb240ba3e269df738129597cc03cc804c74583"
 dependencies = [
  "quote",
  "syn 2.0.119",
@@ -1795,7 +1799,7 @@ dependencies = [
 [[package]]
 name = "topcoat-htmx"
 version = "0.5.0"
-source = "git+https://github.com/petehunt/topcoat.git?rev=0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8#0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8"
+source = "git+https://github.com/petehunt/topcoat.git?rev=7aeb240ba3e269df738129597cc03cc804c74583#7aeb240ba3e269df738129597cc03cc804c74583"
 dependencies = [
  "http",
  "serde",
@@ -1807,7 +1811,7 @@ dependencies = [
 [[package]]
 name = "topcoat-icon"
 version = "0.5.0"
-source = "git+https://github.com/petehunt/topcoat.git?rev=0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8#0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8"
+source = "git+https://github.com/petehunt/topcoat.git?rev=7aeb240ba3e269df738129597cc03cc804c74583#7aeb240ba3e269df738129597cc03cc804c74583"
 dependencies = [
  "topcoat-core",
  "topcoat-view",
@@ -1817,7 +1821,7 @@ dependencies = [
 [[package]]
 name = "topcoat-icon-grammar"
 version = "0.5.0"
-source = "git+https://github.com/petehunt/topcoat.git?rev=0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8#0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8"
+source = "git+https://github.com/petehunt/topcoat.git?rev=7aeb240ba3e269df738129597cc03cc804c74583#7aeb240ba3e269df738129597cc03cc804c74583"
 dependencies = [
  "heck",
  "proc-macro2",
@@ -1831,7 +1835,7 @@ dependencies = [
 [[package]]
 name = "topcoat-icon-macro"
 version = "0.5.0"
-source = "git+https://github.com/petehunt/topcoat.git?rev=0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8#0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8"
+source = "git+https://github.com/petehunt/topcoat.git?rev=7aeb240ba3e269df738129597cc03cc804c74583#7aeb240ba3e269df738129597cc03cc804c74583"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1842,7 +1846,7 @@ dependencies = [
 [[package]]
 name = "topcoat-mail"
 version = "0.5.0"
-source = "git+https://github.com/petehunt/topcoat.git?rev=0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8#0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8"
+source = "git+https://github.com/petehunt/topcoat.git?rev=7aeb240ba3e269df738129597cc03cc804c74583#7aeb240ba3e269df738129597cc03cc804c74583"
 dependencies = [
  "lettre",
  "thiserror",
@@ -1855,7 +1859,7 @@ dependencies = [
 [[package]]
 name = "topcoat-router"
 version = "0.5.0"
-source = "git+https://github.com/petehunt/topcoat.git?rev=0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8#0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8"
+source = "git+https://github.com/petehunt/topcoat.git?rev=7aeb240ba3e269df738129597cc03cc804c74583#7aeb240ba3e269df738129597cc03cc804c74583"
 dependencies = [
  "bytes",
  "form_urlencoded",
@@ -1885,7 +1889,7 @@ dependencies = [
 [[package]]
 name = "topcoat-router-grammar"
 version = "0.5.0"
-source = "git+https://github.com/petehunt/topcoat.git?rev=0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8#0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8"
+source = "git+https://github.com/petehunt/topcoat.git?rev=7aeb240ba3e269df738129597cc03cc804c74583#7aeb240ba3e269df738129597cc03cc804c74583"
 dependencies = [
  "heck",
  "proc-macro2",
@@ -1897,7 +1901,7 @@ dependencies = [
 [[package]]
 name = "topcoat-router-macro"
 version = "0.5.0"
-source = "git+https://github.com/petehunt/topcoat.git?rev=0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8#0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8"
+source = "git+https://github.com/petehunt/topcoat.git?rev=7aeb240ba3e269df738129597cc03cc804c74583#7aeb240ba3e269df738129597cc03cc804c74583"
 dependencies = [
  "quote",
  "syn 2.0.119",
@@ -1907,7 +1911,7 @@ dependencies = [
 [[package]]
 name = "topcoat-runtime"
 version = "0.5.0"
-source = "git+https://github.com/petehunt/topcoat.git?rev=0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8#0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8"
+source = "git+https://github.com/petehunt/topcoat.git?rev=7aeb240ba3e269df738129597cc03cc804c74583#7aeb240ba3e269df738129597cc03cc804c74583"
 dependencies = [
  "inventory",
  "ref-cast",
@@ -1923,7 +1927,7 @@ dependencies = [
 [[package]]
 name = "topcoat-runtime-grammar"
 version = "0.5.0"
-source = "git+https://github.com/petehunt/topcoat.git?rev=0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8#0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8"
+source = "git+https://github.com/petehunt/topcoat.git?rev=7aeb240ba3e269df738129597cc03cc804c74583#7aeb240ba3e269df738129597cc03cc804c74583"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1938,7 +1942,7 @@ dependencies = [
 [[package]]
 name = "topcoat-runtime-macro"
 version = "0.5.0"
-source = "git+https://github.com/petehunt/topcoat.git?rev=0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8#0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8"
+source = "git+https://github.com/petehunt/topcoat.git?rev=7aeb240ba3e269df738129597cc03cc804c74583#7aeb240ba3e269df738129597cc03cc804c74583"
 dependencies = [
  "quote",
  "syn 2.0.119",
@@ -1948,7 +1952,7 @@ dependencies = [
 [[package]]
 name = "topcoat-session"
 version = "0.5.0"
-source = "git+https://github.com/petehunt/topcoat.git?rev=0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8#0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8"
+source = "git+https://github.com/petehunt/topcoat.git?rev=7aeb240ba3e269df738129597cc03cc804c74583#7aeb240ba3e269df738129597cc03cc804c74583"
 dependencies = [
  "base64 0.22.1",
  "getrandom 0.4.3",
@@ -1964,7 +1968,7 @@ dependencies = [
 [[package]]
 name = "topcoat-tailwind"
 version = "0.5.0"
-source = "git+https://github.com/petehunt/topcoat.git?rev=0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8#0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8"
+source = "git+https://github.com/petehunt/topcoat.git?rev=7aeb240ba3e269df738129597cc03cc804c74583#7aeb240ba3e269df738129597cc03cc804c74583"
 dependencies = [
  "sha2 0.11.0",
  "thiserror",
@@ -1975,7 +1979,7 @@ dependencies = [
 [[package]]
 name = "topcoat-vercel"
 version = "0.5.0"
-source = "git+https://github.com/petehunt/topcoat.git?rev=0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8#0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8"
+source = "git+https://github.com/petehunt/topcoat.git?rev=7aeb240ba3e269df738129597cc03cc804c74583#7aeb240ba3e269df738129597cc03cc804c74583"
 dependencies = [
  "http-body-util",
  "tokio",
@@ -1987,7 +1991,7 @@ dependencies = [
 [[package]]
 name = "topcoat-view"
 version = "0.5.0"
-source = "git+https://github.com/petehunt/topcoat.git?rev=0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8#0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8"
+source = "git+https://github.com/petehunt/topcoat.git?rev=7aeb240ba3e269df738129597cc03cc804c74583#7aeb240ba3e269df738129597cc03cc804c74583"
 dependencies = [
  "futures-util",
  "http",
@@ -2000,7 +2004,7 @@ dependencies = [
 [[package]]
 name = "topcoat-view-grammar"
 version = "0.5.0"
-source = "git+https://github.com/petehunt/topcoat.git?rev=0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8#0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8"
+source = "git+https://github.com/petehunt/topcoat.git?rev=7aeb240ba3e269df738129597cc03cc804c74583#7aeb240ba3e269df738129597cc03cc804c74583"
 dependencies = [
  "heck",
  "proc-macro2",
@@ -2013,7 +2017,7 @@ dependencies = [
 [[package]]
 name = "topcoat-view-macro"
 version = "0.5.0"
-source = "git+https://github.com/petehunt/topcoat.git?rev=0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8#0fef963aa8f7dfec8e4ab20af1a3152cb6e2beb8"
+source = "git+https://github.com/petehunt/topcoat.git?rev=7aeb240ba3e269df738129597cc03cc804c74583#7aeb240ba3e269df738129597cc03cc804c74583"
 dependencies = [
  "quote",
  "syn 2.0.119",
