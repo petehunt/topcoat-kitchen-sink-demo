@@ -7,10 +7,10 @@ publish = false
 [dependencies]
 serde = { version = "1", features = ["derive"] }
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }
-topcoat = { git = "https://github.com/petehunt/topcoat.git", rev = "493c0a384e0e03bb8ac51c4e8f7f584b33facb2e", features = ["htmx", "tailwind", "vercel"] }
+topcoat = { git = "https://github.com/petehunt/topcoat.git", rev = "df2c43bff305cf8d1e9bc573fede4ea5b3c5c6eb", features = ["htmx", "react", "tailwind", "vercel"] }
 
 [build-dependencies]
-topcoat = { git = "https://github.com/petehunt/topcoat.git", rev = "493c0a384e0e03bb8ac51c4e8f7f584b33facb2e", default-features = false, features = ["tailwind"] }
+topcoat = { git = "https://github.com/petehunt/topcoat.git", rev = "df2c43bff305cf8d1e9bc573fede4ea5b3c5c6eb", default-features = false, features = ["tailwind"] }
 
 [[bin]]
 name = "kitchen-sink-demo"

@@ -6,13 +6,17 @@ use topcoat::{
     asset::{Asset, CxAssetExt, asset},
     context::Cx,
     htmx::hx_boosted,
-    router::{HeaderValue, header, query_params, request::headers, route},
+    react::ReactComponent,
+    router::{HeaderValue, content::Json, header, query_params, request::headers, route},
     tailwind,
     view::{View, component, defer_script, view},
 };
 
 const TYPEAHEAD_CSS: Asset = asset!("assets/typeahead.css");
 const TYPEAHEAD_JS: Asset = asset!("assets/typeahead.js");
+const TYPEAHEAD: ReactComponent<TypeaheadProps> =
+    ReactComponent::new("catalog-typeahead", TYPEAHEAD_JS);
+const SUGGESTIONS_PATH: &str = "/api/suggestions";
 
 #[query_params(error = redirect("?mode=streaming"))]
 struct CatalogQuery {
@@ -89,6 +93,19 @@ struct ProductSuggestion {
     sku: &'static str,
     specification: &'static str,
     href: String,
+}
+
+#[derive(Serialize)]
+struct TypeaheadProps {
+    initial_value: String,
+    suggestions_url: String,
+}
+
+#[route(GET "/api/suggestions")]
+async fn suggestions(cx: &Cx) -> Result<Json<Vec<ProductSuggestion>>> {
+    let query = query_params::<CatalogQuery>(cx)?;
+    let mode = RenderMode::from_query(query.mode.as_deref());
+    Ok(Json(product_suggestions(mode)))
 }
 
 #[route(GET "/")]
@@ -274,14 +291,15 @@ async fn document(
     content: View,
 ) -> Result {
     cx.require_asset(TYPEAHEAD_CSS.stylesheet())?;
-    cx.require_asset(TYPEAHEAD_JS.module())?;
-    let suggestions = products().map(|product| ProductSuggestion {
-        name: product.name,
-        sku: product.sku,
-        specification: product.specification,
-        href: product_href(mode, find_category(Some(product.category)), product),
-    });
-    let suggestions_key = cx.send_json(&suggestions)?;
+    let suggestions_url = format!("{SUGGESTIONS_PATH}?mode={}", mode.slug());
+    let typeahead = TYPEAHEAD
+        .props(TypeaheadProps {
+            initial_value: search.unwrap_or("").to_owned(),
+            suggestions_url: suggestions_url.clone(),
+        })
+        .preload(cx, suggestions_url, &product_suggestions(mode))?
+        .render(cx)
+        .await?;
     let sequential_item = mode_item_class(mode == RenderMode::Sequential);
     let concurrent_item = mode_item_class(mode == RenderMode::Concurrent);
     let streaming_item = mode_item_class(mode == RenderMode::Streaming);
@@ -437,18 +455,7 @@ async fn document(
                             <label for="catalog-search" class="sr-only">
                                 "Search products"
                             </label>
-                            <input
-                                id="catalog-search"
-                                name="q"
-                                value=(search.unwrap_or(""))
-                                autocomplete="off"
-                                role="combobox"
-                                aria-autocomplete="list"
-                                aria-expanded="false"
-                                data-topcoat-typeahead=(suggestions_key.as_str())
-                                placeholder="Search by product, material, or specification"
-                                class="min-w-0 flex-1 px-4 py-2.5 text-sm outline-none placeholder:text-slate-400"
-                            >
+                            (typeahead)
                             <button
                                 class="bg-slate-950 px-5 text-sm font-bold text-white hover:bg-slate-800"
                             >
@@ -1011,6 +1018,18 @@ fn mode_href(mode: RenderMode, category: Category) -> String {
 
 fn catalog_href(mode: RenderMode, category: Category) -> String {
     mode_href(mode, category)
+}
+
+fn product_suggestions(mode: RenderMode) -> Vec<ProductSuggestion> {
+    products()
+        .into_iter()
+        .map(|product| ProductSuggestion {
+            name: product.name,
+            sku: product.sku,
+            specification: product.specification,
+            href: product_href(mode, find_category(Some(product.category)), product),
+        })
+        .collect()
 }
 
 fn product_href(mode: RenderMode, category: Category, product: Product) -> String {
