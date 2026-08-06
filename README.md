@@ -39,7 +39,7 @@ The utility bar labels the response as a normal navigation, an htmx-boosted requ
 
 The example serves htmx 2.0.10 and the preload extension 2.1.2 as one minified, content-hashed script. Its logo, local script, and generated Tailwind stylesheet use the same Topcoat asset bundle.
 
-The catalog search is a keyboard-accessible React typeahead bundled separately with esbuild. Its typed Rust props select the client component, and `.preload(cx, "/api/suggestions", value)` streams the product index into SWR's fallback cache before the island mounts. Topcoat waits for the bundle, props, and preload even when those arrive in a different order.
+The catalog search is a keyboard-accessible React typeahead bundled separately with esbuild. Its typed Rust props select the client component, and `.preload(cx, "/api/suggestions", value)` streams the product index into SWR's fallback cache before the island mounts. A second esbuild bundle runs through rquickjs so the input is present in the initial HTML, then the client hydrates it after the bundle, props, and preload arrive.
 
 Build the client bundle before running the app:
 

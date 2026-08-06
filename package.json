@@ -2,7 +2,9 @@
   "name": "topcoat-kitchen-sink-demo",
   "private": true,
   "scripts": {
-    "build:react": "esbuild frontend/typeahead.tsx --bundle --format=esm --platform=browser --target=es2022 --minify --outfile=assets/typeahead.js",
+    "build:react": "npm run build:react:client && npm run build:react:ssr",
+    "build:react:client": "esbuild frontend/typeahead.tsx --bundle --format=esm --platform=browser --target=es2022 --minify --outfile=assets/typeahead.js",
+    "build:react:ssr": "esbuild frontend/typeahead-ssr.tsx --bundle --format=iife --platform=browser --target=es2022 --minify --outfile=assets/typeahead.ssr.js",
     "check:react": "tsc --noEmit"
   },
   "dependencies": {

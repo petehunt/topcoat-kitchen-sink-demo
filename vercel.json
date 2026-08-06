@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "installCommand": "npm ci && rustup toolchain install 1.95.0 --profile minimal && cargo +1.95.0 install --git https://github.com/petehunt/topcoat.git --rev df2c43bff305cf8d1e9bc573fede4ea5b3c5c6eb topcoat-vercel --locked",
+  "installCommand": "npm ci && rustup toolchain install 1.95.0 --profile minimal && cargo +1.95.0 install --git https://github.com/petehunt/topcoat.git --rev 5694bfd1d45fd1ca228cf7615afcd6956dcaf0dc topcoat-vercel --locked",
   "buildCommand": "npm run build:react && topcoat-vercel build --bin kitchen-sink-demo"
 }

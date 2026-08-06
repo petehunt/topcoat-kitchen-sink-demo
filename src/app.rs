@@ -6,7 +6,7 @@ use topcoat::{
     asset::{Asset, CxAssetExt, asset},
     context::Cx,
     htmx::hx_boosted,
-    react::ReactComponent,
+    react::{ReactComponent, ReactServerRenderer},
     router::{HeaderValue, content::Json, header, query_params, request::headers, route},
     tailwind,
     view::{View, component, defer_script, view},
@@ -15,7 +15,9 @@ use topcoat::{
 const TYPEAHEAD_CSS: Asset = asset!("assets/typeahead.css");
 const TYPEAHEAD_JS: Asset = asset!("assets/typeahead.js");
 const TYPEAHEAD: ReactComponent<TypeaheadProps> =
-    ReactComponent::new("catalog-typeahead", TYPEAHEAD_JS);
+    ReactComponent::new("catalog-typeahead", TYPEAHEAD_JS).server_renderer(
+        ReactServerRenderer::new(include_str!("../assets/typeahead.ssr.js")),
+    );
 const SUGGESTIONS_PATH: &str = "/api/suggestions";
 
 #[query_params(error = redirect("?mode=streaming"))]
@@ -1231,4 +1233,54 @@ fn products() -> [Product; 12] {
             delay_ms: 230,
         },
     ]
+}
+
+#[cfg(test)]
+mod tests {
+    use topcoat::{
+        asset::{AssetConfig, Manifest},
+        context::CxTestBuilder,
+    };
+
+    use super::*;
+
+    #[tokio::test]
+    async fn typeahead_is_server_rendered() {
+        let manifest = Manifest::parse(&format!(
+            r#"
+version = 1
+
+[[assets]]
+id = {}
+file = "typeahead.js"
+hash = "0"
+content_type = "text/javascript"
+"#,
+            TYPEAHEAD_JS.id().as_u64()
+        ))
+        .unwrap();
+        let cx = CxTestBuilder::new()
+            .app_context(AssetConfig::hosted_at("https://example.com", manifest))
+            .build();
+        let suggestions_url = "/api/suggestions?mode=streaming";
+        let view = TYPEAHEAD
+            .props(TypeaheadProps {
+                initial_value: String::new(),
+                suggestions_url: suggestions_url.to_owned(),
+            })
+            .preload(
+                &cx,
+                suggestions_url,
+                &product_suggestions(RenderMode::Streaming),
+            )
+            .unwrap()
+            .render(&cx)
+            .await
+            .unwrap();
+        let html = view.render(&cx);
+
+        assert!(html.contains("data-topcoat-react-ssr"), "{html}");
+        assert!(html.contains("<input"), "{html}");
+        assert!(html.contains("Search by product"), "{html}");
+    }
 }
