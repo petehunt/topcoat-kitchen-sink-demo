@@ -9,6 +9,12 @@ import React, {
 import { createPortal } from "react-dom";
 import useSWR from "swr";
 
+declare module "react" {
+  interface AnchorHTMLAttributes<T> {
+    preload?: string;
+  }
+}
+
 export type ProductSuggestion = {
   name: string;
   sku: string;
@@ -127,7 +133,7 @@ export function Typeahead({ initial_value, suggestions_url }: TypeaheadProps) {
               id={`${listId}-${index}`}
               className="topcoat-typeahead__item"
               href={product.href}
-              data-preload="mouseover"
+              preload="mouseover"
               role="option"
               aria-selected={index === activeIndex}
               key={product.sku}
