@@ -54,6 +54,3 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-[data-topcoat-react="catalog-typeahead"] {
-  display: contents;
-}

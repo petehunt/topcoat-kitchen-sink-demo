@@ -299,6 +299,7 @@ async fn document(
             initial_value: search.unwrap_or("").to_owned(),
             suggestions_url: suggestions_url.clone(),
         })
+        .class("contents")
         .preload(cx, suggestions_url, &product_suggestions(mode))?
         .render(cx)
         .await?;
@@ -1268,6 +1269,7 @@ content_type = "text/javascript"
                 initial_value: String::new(),
                 suggestions_url: suggestions_url.to_owned(),
             })
+            .class("contents")
             .preload(
                 &cx,
                 suggestions_url,
@@ -1280,6 +1282,7 @@ content_type = "text/javascript"
         let html = view.render(&cx);
 
         assert!(html.contains("data-topcoat-react-ssr"), "{html}");
+        assert!(html.contains("class=\"contents\""), "{html}");
         assert!(html.contains("<input"), "{html}");
         assert!(html.contains("Search by product"), "{html}");
     }
