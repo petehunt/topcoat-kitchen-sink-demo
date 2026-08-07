@@ -21,6 +21,14 @@ export type TypeaheadProps = {
   suggestions_url: string;
 };
 
+declare global {
+  interface Window {
+    htmx: {
+      process(element: Element): void;
+    };
+  }
+}
+
 const fetcher = async (url: string): Promise<ProductSuggestion[]> => {
   const response = await fetch(url);
   if (!response.ok) throw new Error(`suggestions request failed: ${response.status}`);
@@ -78,6 +86,19 @@ export function Typeahead({ initial_value, suggestions_url }: TypeaheadProps) {
     setOpen(matches.length > 0 && query.trim().length > 0);
   }, [matches.length, query]);
 
+  useEffect(() => {
+    if (!open) return;
+    const list = document.getElementById(listId);
+    if (list) window.htmx.process(list);
+  }, [listId, matches, open]);
+
+  useEffect(() => {
+    if (activeIndex < 0) return;
+    document
+      .getElementById(`${listId}-${activeIndex}`)
+      ?.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+  }, [activeIndex, listId]);
+
   const select = (next: number) => {
     if (!matches.length) return;
     setActiveIndex((next + matches.length) % matches.length);
@@ -92,7 +113,7 @@ export function Typeahead({ initial_value, suggestions_url }: TypeaheadProps) {
       select(activeIndex - 1);
     } else if (event.key === "Enter" && activeIndex >= 0) {
       event.preventDefault();
-      window.location.assign(matches[activeIndex].href);
+      document.getElementById(`${listId}-${activeIndex}`)?.click();
     } else if (event.key === "Escape") {
       setOpen(false);
     }
@@ -106,6 +127,7 @@ export function Typeahead({ initial_value, suggestions_url }: TypeaheadProps) {
               id={`${listId}-${index}`}
               className="topcoat-typeahead__item"
               href={product.href}
+              data-preload="mouseover"
               role="option"
               aria-selected={index === activeIndex}
               key={product.sku}
