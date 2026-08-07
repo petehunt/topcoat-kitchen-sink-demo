@@ -293,16 +293,7 @@ async fn document(
     content: View,
 ) -> Result {
     cx.require_asset(TYPEAHEAD_CSS.stylesheet())?;
-    let suggestions_url = format!("{SUGGESTIONS_PATH}?mode={}", mode.slug());
-    let typeahead = TYPEAHEAD
-        .props(TypeaheadProps {
-            initial_value: search.unwrap_or("").to_owned(),
-            suggestions_url: suggestions_url.clone(),
-        })
-        .class("contents")
-        .preload(cx, suggestions_url, &product_suggestions(mode))?
-        .render(cx)
-        .await?;
+    let typeahead = deferred_typeahead(cx, mode, search.unwrap_or("")).await?;
     let sequential_item = mode_item_class(mode == RenderMode::Sequential);
     let concurrent_item = mode_item_class(mode == RenderMode::Concurrent);
     let streaming_item = mode_item_class(mode == RenderMode::Streaming);
@@ -540,6 +531,36 @@ async fn document(
             </body>
         </html>
     }
+}
+
+async fn deferred_typeahead(cx: &Cx, mode: RenderMode, initial_value: &str) -> Result<View> {
+    cx.require_asset(TYPEAHEAD_JS.module())?;
+    let suggestions_url = format!("{SUGGESTIONS_PATH}?mode={}", mode.slug());
+    let initial_value = initial_value.to_owned();
+    let placeholder_value = initial_value.clone();
+    let island = TYPEAHEAD
+        .props(TypeaheadProps {
+            initial_value,
+            suggestions_url: suggestions_url.clone(),
+        })
+        .class("contents")
+        .preload(cx, suggestions_url, &product_suggestions(mode))?;
+    let placeholder = view! {
+        cx =>
+        <input
+            id="catalog-search"
+            name="q"
+            value=(placeholder_value)
+            autocomplete="off"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded="false"
+            placeholder="Search by product, material, or specification"
+            class="min-w-0 flex-1 px-4 py-2.5 text-sm outline-none placeholder:text-slate-400"
+        >
+    }?;
+
+    Ok(placeholder.defer(move |cx| async move { island.render(&cx).await }))
 }
 
 async fn catalog_layout(
@@ -1246,7 +1267,7 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn typeahead_is_server_rendered() {
+    async fn typeahead_server_render_is_deferred() {
         let manifest = Manifest::parse(&format!(
             r#"
 version = 1
@@ -1263,23 +1284,22 @@ content_type = "text/javascript"
         let cx = CxTestBuilder::new()
             .app_context(AssetConfig::hosted_at("https://example.com", manifest))
             .build();
-        let suggestions_url = "/api/suggestions?mode=streaming";
-        let view = TYPEAHEAD
-            .props(TypeaheadProps {
-                initial_value: String::new(),
-                suggestions_url: suggestions_url.to_owned(),
-            })
-            .class("contents")
-            .preload(
-                &cx,
-                suggestions_url,
-                &product_suggestions(RenderMode::Streaming),
-            )
-            .unwrap()
-            .render(&cx)
+        let view = deferred_typeahead(&cx, RenderMode::Streaming, "valve")
             .await
             .unwrap();
-        let html = view.render(&cx);
+        let rendered = view.render_response(&cx);
+
+        assert!(rendered.html.contains("data-topcoat-defer-start"));
+        assert!(rendered.html.contains("value=\"valve\""));
+        assert!(!rendered.html.contains("data-topcoat-react-ssr"));
+        assert_eq!(rendered.deferred.len(), 1);
+
+        let completed = rendered.deferred[0]
+            .clone()
+            .resolve(cx.handle())
+            .await
+            .unwrap();
+        let html = completed.render(&cx);
 
         assert!(html.contains("data-topcoat-react-ssr"), "{html}");
         assert!(html.contains("class=\"contents\""), "{html}");
